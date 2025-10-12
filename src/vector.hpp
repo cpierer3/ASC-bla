@@ -1,57 +1,63 @@
-#ifndef FILE_VECTOR_H
-#define FILE_VECTOR_H
+#ifndef FILE_VECTOR
+#define FILE_VECTOR
 
 #include <iostream>
 
-#include "expression.h"
+#include "expression.hpp"
 
 
 namespace ASC_bla
 {
-
-
  
   template <typename T, typename TDIST = std::integral_constant<size_t,1> >
   class VectorView : public VecExpr<VectorView<T,TDIST>>
   {
   protected:
-    T * data_;
-    size_t size_;
-    TDIST dist_;
+    T * data;
+    size_t size;
+    TDIST dist;
   public:
-    VectorView (size_t size, T * data)
-      : data_(data), size_(size) { }
+    VectorView() = default;
+    VectorView(const VectorView &) = default;
     
-    VectorView (size_t size, TDIST dist, T * data)
-      : data_(data), size_(size), dist_(dist) { }
+    template <typename TDIST2>
+    VectorView (const VectorView<T,TDIST2> & v2)
+      : data(v2.Data()), size(v2.Size()), dist(v2.Dist()) { }
+    
+    VectorView (size_t _size, T * _data)
+      : data(_data), size(_size) { }
+    
+    VectorView (size_t _size, TDIST _dist, T * _data)
+      : data(_data), size(_size), dist(_dist) { }
     
     template <typename TB>
     VectorView & operator= (const VecExpr<TB> & v2)
     {
-      for (size_t i = 0; i < size_; i++)
-        data_[dist_*i] = v2(i);
+      for (size_t i = 0; i < size; i++)
+        data[dist*i] = v2(i);
       return *this;
     }
 
     VectorView & operator= (T scal)
     {
-      for (size_t i = 0; i < size_; i++)
-        data_[dist_*i] = scal;
+      for (size_t i = 0; i < size; i++)
+        data[dist*i] = scal;
       return *this;
     }
+
+    T * Data() const { return data; }
+    size_t Size() const { return size; }
+    auto Dist() const { return dist; }
     
-    auto View() const { return VectorView(size_, dist_, data_); }
-    size_t Size() const { return size_; }
-    auto Dist() const { return dist_; }    
-    T & operator()(size_t i) { return data_[dist_*i]; }
-    const T & operator()(size_t i) const { return data_[dist_*i]; }
+    T & operator()(size_t i) { return data[dist*i]; }
+    const T & operator()(size_t i) const { return data[dist*i]; }
     
     auto Range(size_t first, size_t next) const {
-      return VectorView(next-first, dist_, data_+first*dist_);
+      return VectorView(next-first, dist, data+first*dist);
     }
 
     auto Slice(size_t first, size_t slice) const {
-      return VectorView<T,size_t> (size_/slice, dist_*slice, data_+first*dist_);
+      return VectorView<T,size_t> (size/slice, dist*slice, data+first*dist);
     }
       
   };
@@ -63,8 +69,8 @@ namespace ASC_bla
   class Vector : public VectorView<T>
   {
     typedef VectorView<T> BASE;
-    using BASE::size_;
-    using BASE::data_;
+    using BASE::size;
+    using BASE::data;
   public:
     Vector (size_t size) 
       : VectorView<T> (size, new T[size]) { ; }
@@ -78,8 +84,8 @@ namespace ASC_bla
     Vector (Vector && v)
       : VectorView<T> (0, nullptr)
     {
-      std::swap(size_, v.size_);
-      std::swap(data_, v.data_);
+      std::swap(size, v.size);
+      std::swap(data, v.data);
     }
 
     template <typename TB>
@@ -89,24 +95,22 @@ namespace ASC_bla
       *this = v;
     }
     
-    
-    ~Vector () { delete [] data_; }
+    ~Vector () { delete [] data; }
 
     using BASE::operator=;
     Vector & operator=(const Vector & v2)
     {
-      for (size_t i = 0; i < size_; i++)
-        data_[i] = v2(i);
+      for (size_t i = 0; i < size; i++)
+        data[i] = v2(i);
       return *this;
     }
 
     Vector & operator= (Vector && v2)
     {
-      for (size_t i = 0; i < size_; i++)
-        data_[i] = v2(i);
+      std::swap(size, v2.size);
+      std::swap(data, v2.data);
       return *this;
     }
-    
   };
 
 
@@ -121,6 +125,5 @@ namespace ASC_bla
   }
   
 }
-
 
 #endif

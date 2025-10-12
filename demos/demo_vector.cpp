@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <vector.h>
+#include <vector.hpp>
 
 namespace bla = ASC_bla;
 
@@ -31,5 +31,3 @@ int main()
   
   std::cout << "x = " << x << std::endl;  
 }
-
-
