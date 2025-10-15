@@ -117,16 +117,23 @@ namespace ASC_bla
     
     size_t Size() const { return size; }
     T & operator()(size_t i) { return data[i]; }
-    const T & operator()(size_t i) const { return data[i]; }
+    const T& operator()(size_t i) const { return data[i]; }
+
   };
 
 
-  template <typename T>
-  Vector<T> operator+ (const Vector<T> & a, const Vector<T> & b)
+  template <typename T1, typename T2>
+  auto operator+ (const Vector<T1> & a, const Vector<T2> & b)
+    -> Vector<decltype(std::declval<T1>() + std::declval<T2>())>
   {
-    Vector<T> sum(a.Size());
+    if (a.Size() != b.Size()){
+      throw std::invalid_argument("Vector dimensions do not match!");
+    }
+    
+    typedef decltype(std::declval<T1>() + std::declval<T2>()) TRES;
+    Vector<TRES> sum(a.Size());
     for (size_t i = 0; i < a.Size(); i++)
-      sum(i) = a(i)+b(i);
+      sum(i) = static_cast<TRES>(a(i))+static_cast<TRES>(b(i));
     return sum;
   }
   
@@ -135,7 +142,7 @@ namespace ASC_bla
   {
     Vector<T> sum(a.Size());
     for (size_t i = 0; i < a.Size(); i++)
-      sum(i) = a(i)-b(i);
+      sum(i) = static_cast<TRES>(a(i)) - static_cast<TRES>(b(i));
     return sum;
   }
   

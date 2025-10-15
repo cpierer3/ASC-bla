@@ -1,4 +1,5 @@
 #include <iostream>
+#include <complex>
 
 #include <vector.hpp>
 
@@ -9,14 +10,17 @@ int main()
 {
   size_t n = 10;
   bla::Vector<double> x(n), y(n);
+  size_t n = 3;
+  bla::Vector<std::complex<double>> x(n);
+  bla::Vector <double> y(n);
 
   for (size_t i = 0; i < x.size(); i++)
     {
-      x(i) = i;
+      x(i) = {static_cast<double>(i), 1.0};
       y(i) = 10;
     }
 
-  bla::Vector<double> z = x+y;
+  auto z = x+y;
   
   std::cout << "x+y = " << z << std::endl;
   
