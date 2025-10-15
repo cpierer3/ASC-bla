@@ -5,35 +5,31 @@
 
 namespace bla = ASC_bla;
 
-
 int main()
 {
   size_t n = 10;
   bla::Vector<double> x(n), y(n);
-  size_t n = 3;
-  bla::Vector<std::complex<double>> x(n);
-  bla::Vector <double> y(n);
 
   for (size_t i = 0; i < x.size(); i++)
-    {
-      x(i) = {static_cast<double>(i), 1.0};
-      y(i) = 10;
-    }
+  {
+    x(i) = {static_cast<double>(i)};
+    y(i) = 10;
+  }
 
   auto z = x+y;
-  
+
   std::cout << "x+y = " << z << std::endl;
-  
+
   std::cout << "type of (x+3*y) is  " << typeid(x+3*y).name() << std::endl;
 
   std::cout << "x+3*y = " << x+3*y << std::endl;
 
   std::cout << "sizeof(x+3*y) = " << sizeof(x+3*y) << std::endl;
-  
+
   std::cout << "<x,x> = " << dot(x,x) << std::endl;
 
   x.range(2,9) = 3;
   x.slice(1,5) = 10;
-  
-  std::cout << "x = " << x << std::endl;  
+
+  std::cout << "x = " << x << std::endl;
 }
