@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "vector.h"
+#include "vector.hpp"
 
 
 
@@ -22,7 +22,7 @@ typedef std::complex<double> doublecomplex;
 typedef void VOID;
 #endif
 typedef int ftnlen;
-typedef int L_fp;  // ?
+typedef int L_fp;  
 
 
 extern "C" {
@@ -30,11 +30,10 @@ extern "C" {
 }
 
 
-
-
 namespace ASC_bla
 {
-  
+
+
   // BLAS-1 functions:
 
   /*
@@ -43,11 +42,11 @@ namespace ASC_bla
   */
   // y += alpha x
   template <typename SX, typename SY>
-  void AddVectorLapack (double alpha, VectorView<double,SX> x, VectorView<double,SY> y)
+  void addVectorLapack (double alpha, VectorView<double,SX> x, VectorView<double,SY> y)
   {
-    integer n = x.Size();
-    integer incx = x.Dist();
-    integer incy = y.Dist();
+    integer n = x.size();
+    integer incx = x.dist();
+    integer incy = y.dist();
     daxpy_ (&n, &alpha, &x(0),  &incx, &y(0), &incy);
   }
   
@@ -64,22 +63,22 @@ namespace ASC_bla
   /*  
   // c = a*b
   template <ORDERING OA, ORDERING OB>
-  void MultMatMatLapack (MatrixView<double, OA> a,
+  void multMatMatLapack (MatrixView<double, OA> a,
                          MatrixView<double, OB> b,
                          MatrixView<double, ColMajor> c)
   {
     char transa_ = (OA == ColMajor) ? 'N' : 'T';
     char transb_ = (OB == ColMajor) ? 'N' : 'T'; 
   
-    integer n = c.Height();
-    integer m = c.Width();
-    integer k = a.Width();
+    integer n = c.rows();
+    integer m = c.cols();
+    integer k = a.dist();
   
     double alpha = 1.0;
     double beta = 0;
-    integer lda = std::max(a.Dist(), 1ul);
-    integer ldb = std::max(b.Dist(), 1ul);
-    integer ldc = std::max(c.Dist(), 1ul);
+    integer lda = std::max(a.dist(), 1ul);
+    integer ldb = std::max(b.dist(), 1ul);
+    integer ldc = std::max(c.dist(), 1ul);
 
     int err =
       dgemm_ (&transa_, &transb_, &n, &m, &k, &alpha, 
@@ -90,11 +89,11 @@ namespace ASC_bla
   }
                        
   template <ORDERING OA, ORDERING OB>
-  int MultMatMatLapack (MatrixView<double, OA> a,
+  int multMatMatLapack (MatrixView<double, OA> a,
                         MatrixView<double, OB> b,
                         MatrixView<double, RowMajor> c)
   {
-    MultMatMatLapack (Trans(b), Trans(a), Trans(c));
+    multMatMatLapack (trans(b), trans(a), trans(c));
   }
   */
 
@@ -108,11 +107,11 @@ namespace ASC_bla
     
   public:
     LapackLU (Matrix<double,ORD> _a)
-      : a(std::move(_a)), ipiv(a.Height()) {
-      integer m = a.Height();
+      : a(std::move(_a)), ipiv(a.rows()) {
+      integer m = a.rows();
       if (m == 0) return;
-      integer n = a.Width();
-      integer lda = a.Dist();
+      integer n = a.cols();
+      integer lda = a.dist();
       integer info;
     
       // int dgetrf_(integer *m, integer *n, doublereal *a, 
@@ -124,10 +123,10 @@ namespace ASC_bla
     // b overwritten with A^{-1} b
     void Solve (VectorView<double> b) const {
       char transa =  (ORD == ColMajor) ? 'N' : 'T';
-      integer n = a.Height();
+      integer n = a.rows();
       integer nrhs = 1;
-      integer lda = a.Dist();
-      integer ldb = b.Size();
+      integer lda = a.dist();
+      integer ldb = b.size();
       integer info;
 
       // int dgetrs_(char *trans, integer *n, integer *nrhs, 
