@@ -15,12 +15,12 @@ PYBIND11_MODULE(bla, m) {
     py::class_<Vector<double>> (m, "Vector")
       .def(py::init<size_t>(),
            py::arg("size"), "create vector of given size")
-      .def("__len__", &Vector<double>::Size,
+      .def("__len__", &Vector<double>::size,
            "return size of vector")
       
       .def("__setitem__", [](Vector<double> & self, int i, double v) {
-        if (i < 0) i += self.Size();
-        if (i < 0 || i >= self.Size()) throw py::index_error("vector index out of range");
+        if (i < 0) i += self.size();
+        if (i < 0 || i >= self.size()) throw py::index_error("vector index out of range");
         self(i) = v;
       })
       .def("__getitem__", [](Vector<double> & self, int i) { return self(i); })
@@ -28,9 +28,9 @@ PYBIND11_MODULE(bla, m) {
       .def("__setitem__", [](Vector<double> & self, py::slice inds, double val)
       {
         size_t start, stop, step, n;
-        if (!inds.compute(self.Size(), &start, &stop, &step, &n))
+        if (!inds.compute(self.size(), &start, &stop, &step, &n))
           throw py::error_already_set();
-        self.Range(start, stop).Slice(0,step) = val;
+        self.range(start, stop).slice(0,step) = val;
       })
       
       .def("__add__", [](Vector<double> & self, Vector<double> & other)
@@ -49,8 +49,8 @@ PYBIND11_MODULE(bla, m) {
      .def(py::pickle(
         [](Vector<double> & self) { // __getstate__
             /* return a tuple that fully encodes the state of the object */
-          return py::make_tuple(self.Size(),
-                                py::bytes((char*)(void*)&self(0), self.Size()*sizeof(double)));
+          return py::make_tuple(self.size(),
+                                py::bytes((char*)(void*)&self(0), self.size()*sizeof(double)));
         },
         [](py::tuple t) { // __setstate__
           if (t.size() != 2)
@@ -58,7 +58,7 @@ PYBIND11_MODULE(bla, m) {
 
           Vector<double> v(t[0].cast<size_t>());
           py::bytes mem = t[1].cast<py::bytes>();
-          std::memcpy(&v(0), PYBIND11_BYTES_AS_STRING(mem.ptr()), v.Size()*sizeof(double));
+          std::memcpy(&v(0), PYBIND11_BYTES_AS_STRING(mem.ptr()), v.size()*sizeof(double));
           return v;
         }))
     ;

@@ -26,7 +26,7 @@ endif()
 
 
 find_package(LAPACK REQUIRED)
-add_executable (test_lapack tests/test_lapack.cc)
+add_executable (test_lapack demos/test_lapack.cpp)
 target_link_libraries (test_lapack PUBLIC LAPACK::LAPACK)
 
 

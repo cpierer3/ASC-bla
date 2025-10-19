@@ -1,5 +1,5 @@
-#ifndef FILE_LAPACK_INTERFACE_H
-#define FILE_LAPACK_INTERFACE_H
+#ifndef FILE_LAPACK_INTERFACE_HPP
+#define FILE_LAPACK_INTERFACE_HPP
 
 #include <iostream>
 #include <string>
