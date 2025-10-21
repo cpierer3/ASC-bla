@@ -151,10 +151,52 @@ void test_cols_view() {
   std::cout << "cols(1,3) view test passed.\n";
 }
 
+void test_transpose() {
+  using namespace std;
+  namespace bla = ASC_bla;
+
+  // Create a 3x4 RowMajor matrix
+  bla::Matrix<double, bla::RowMajor> A(3, 4);
+  A(0,0) = 1;  A(0,1) = 2;  A(0,2) = 3;  A(0,3) = 4;
+  A(1,0) = 5;  A(1,1) = 6;  A(1,2) = 7;  A(1,3) = 8;
+  A(2,0) = 9;  A(2,1) = 10; A(2,2) = 11; A(2,3) = 12;
+
+  auto At = A.transpose();
+
+//  cout << "A (3x4):\n" << A << endl;
+//  cout << "A^T (4x3):\n" << At << endl;
+//
+  // Verify dimensions are swapped
+  assert(At.rows() == 4 && At.cols() == 3);
+
+  // Verify elements: At(i,j) should equal A(j,i)
+  for (size_t i = 0; i < At.rows(); ++i)
+    for (size_t j = 0; j < At.cols(); ++j)
+      assert(At(i,j) == A(j,i));
+
+  // Test with ColMajor matrix
+  bla::Matrix<double, bla::ColMajor> B(2, 3);
+  B(0,0) = 1; B(0,1) = 2; B(0,2) = 3;
+  B(1,0) = 4; B(1,1) = 5; B(1,2) = 6;
+
+  auto Bt = B.transpose();
+
+//  cout << "B (2x3):\n" << B << endl;
+//  cout << "B^T (3x2):\n" << Bt << endl;
+
+  assert(Bt.rows() == 3 && Bt.cols() == 2);
+  for (size_t i = 0; i < Bt.rows(); ++i)
+    for (size_t j = 0; j < Bt.cols(); ++j)
+      assert(Bt(i,j) == B(j,i));
+
+  cout << "Transpose test passed.\n";
+}
+
 int main() {
   test_row_major_and_col_major();
   test_rows_view();
   test_cols_view();
+  test_transpose();
   test_multiplications();
   size_t n = 3;
   size_t m = 3;

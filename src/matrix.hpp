@@ -67,6 +67,15 @@ namespace ASC_bla {
       }
     }
 
+    auto transpose() const {
+      if constexpr (ORD == RowMajor) {
+        return MatrixView<T, ColMajor>(m_cols, m_rows, m_data);
+      }
+      if constexpr (ORD == ColMajor) {
+        return MatrixView<T, RowMajor>(m_cols, m_rows, m_data);
+      }
+    }
+
     template<typename TB>
     MatrixView &operator=(const MatrixExpr<TB> &m2) {
       assert(m_rows == m2.rows());
