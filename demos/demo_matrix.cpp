@@ -98,8 +98,63 @@ void test_multiplications() {
 
 }
 
+void test_rows_view() {
+  namespace bla = ASC_bla;
+
+  bla::Matrix<double, bla::RowMajor> A(4, 3);
+  bla::Matrix<double, bla::ColMajor> B(4, 3);
+  A(0,0) = 1; A(0,1) = 2; A(0,2) = 3;
+  A(1,0) = 4; A(1,1) = 5; A(1,2) = 6;
+  A(2,0) = 7; A(2,1) = 8; A(2,2) = 9;
+  A(3,0) = 10; A(3,1) = 11; A(3,2) = 12;
+  B(0,0) = 1; B(0,1) = 2; B(0,2) = 3;
+  B(1,0) = 4; B(1,1) = 5; B(1,2) = 6;
+  B(2,0) = 7; B(2,1) = 8; B(2,2) = 9;
+  B(3,0) = 10; B(3,1) = 11; B(3,2) = 12;
+  auto A_rows_1_3 = A.rows(1, 3); // should be rows 1 and 2
+  assert(A_rows_1_3.rows() == 2 && A_rows_1_3.cols() == 3);
+  assert(A_rows_1_3(0,0) == 4 && A_rows_1_3(1,2) == 9);
+  auto B_rows_0_2 = B.rows(1, 3); // should be rows 0 and 1
+  assert(B_rows_0_2.rows() == 2 && B_rows_0_2.cols() == 3);
+  assert(B_rows_0_2(0,0) == 4 && B_rows_0_2(1,2) == 9);
+}
+
+void test_cols_view() {
+  namespace bla = ASC_bla;
+
+  // Create a 3x4 matrix for testing column views
+  bla::Matrix<double, bla::RowMajor> A(3, 4);
+  bla::Matrix<double, bla::ColMajor> B(3, 4);
+
+  // Fill matrices with distinct values
+  A(0,0) = 1;  A(0,1) = 2;  A(0,2) = 3;  A(0,3) = 4;
+  A(1,0) = 5;  A(1,1) = 6;  A(1,2) = 7;  A(1,3) = 8;
+  A(2,0) = 9;  A(2,1) = 10; A(2,2) = 11; A(2,3) = 12;
+
+  B(0,0) = 1;  B(0,1) = 2;  B(0,2) = 3;  B(0,3) = 4;
+  B(1,0) = 5;  B(1,1) = 6;  B(1,2) = 7;  B(1,3) = 8;
+  B(2,0) = 9;  B(2,1) = 10; B(2,2) = 11; B(2,3) = 12;
+
+  // Test cols(1,3) - should get columns 1 and 2
+  auto A_cols_1_3 = A.cols(1, 3);
+  assert(A_cols_1_3.rows() == 3 && A_cols_1_3.cols() == 2);
+  assert(A_cols_1_3(0,0) == 2 && A_cols_1_3(0,1) == 3);
+  assert(A_cols_1_3(1,0) == 6 && A_cols_1_3(1,1) == 7);
+  assert(A_cols_1_3(2,0) == 10 && A_cols_1_3(2,1) == 11);
+
+  auto B_cols_1_3 = B.cols(1, 3);
+  assert(B_cols_1_3.rows() == 3 && B_cols_1_3.cols() == 2);
+  assert(B_cols_1_3(0,0) == 2 && B_cols_1_3(0,1) == 3);
+  assert(B_cols_1_3(1,0) == 6 && B_cols_1_3(1,1) == 7);
+  assert(B_cols_1_3(2,0) == 10 && B_cols_1_3(2,1) == 11);
+
+  std::cout << "cols(1,3) view test passed.\n";
+}
+
 int main() {
   test_row_major_and_col_major();
+  test_rows_view();
+  test_cols_view();
   test_multiplications();
   size_t n = 3;
   size_t m = 3;

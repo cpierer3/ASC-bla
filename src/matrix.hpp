@@ -18,17 +18,13 @@ namespace ASC_bla {
     T *m_data;
 
   public:
-    MatrixView() = default;
-
     MatrixView(const MatrixView &) = default;
 
-    template<typename TDIST2>
-    explicit MatrixView(const MatrixView<T, ORD> &m2)
-        : m_data(m2.m_data), m_rows(m2.m_rows), m_cols(m2.m_cols) {}
+    MatrixView(size_t rows, size_t cols, size_t dist, T *data)
+        : m_data(data), m_rows(rows), m_cols(cols), m_dist(dist) {
+    }
 
-    MatrixView(size_t rows, size_t cols, T *data)
-        : m_data(data), m_rows(rows), m_cols(cols) {
-      m_dist = (ORD == RowMajor) ? cols : rows;
+    MatrixView(size_t rows, size_t cols, T *data) : MatrixView(rows, cols, ORD == RowMajor ? cols : rows, data) {
     }
 
     auto row(size_t i) const {
@@ -48,6 +44,26 @@ namespace ASC_bla {
       }
       if constexpr (ORD == ColMajor) {
         return VectorView<T>(m_cols, &m_data[i * m_dist]);
+      }
+    }
+
+    auto rows(size_t first, size_t next) const {
+      assert(first <= next && next <= m_rows);
+      if constexpr (ORD == RowMajor) {
+        return MatrixView<T, ORD>(next - first, m_cols, &m_data[first * m_dist]);
+      }
+      if constexpr (ORD == ColMajor) {
+        return MatrixView<T, ORD>(next - first, m_cols, m_dist, &m_data[first]);
+      }
+    }
+
+    auto cols(size_t first, size_t next) const {
+      assert(first <= next && next <= m_cols);
+      if constexpr (ORD == RowMajor) {
+        return MatrixView<T, ORD>(m_rows, next - first, m_dist, &m_data[first]);
+      }
+      if constexpr (ORD == ColMajor) {
+        return MatrixView<T, ORD>(m_rows, next - first, &m_data[first * m_dist]);
       }
     }
 
@@ -104,21 +120,11 @@ namespace ASC_bla {
     using BASE::m_data;
   public:
     Matrix(size_t rows, size_t cols)
-        : MatrixView<T, ORD>(rows, cols, new T[rows * cols]) {
-      ;
-    }
+        : MatrixView<T, ORD>(rows, cols, new T[rows * cols]) {}
 
     using BASE::operator=;
 
-    Matrix(const Matrix &m) : Matrix(m.rows(), m.cols()) {
-      for (size_t i = 0; i < m.rows(); i++) {
-        for (size_t j = 0; j < m.cols(); j++) {
-          (*this)(i, j) = m(i, j);
-        }
-      }
-    }
-
-//    Matrix(const Matrix &m) : Matrix(m.rows(), m.cols()) { *this = m; }
+    Matrix(const Matrix &m) : Matrix(m.rows(), m.cols()) { *this = m; }
 
     Matrix &operator=(Matrix &&m2) {
       std::swap(this->m_rows, m2.m_rows);
@@ -135,7 +141,7 @@ namespace ASC_bla {
 
     ~Matrix() { delete[] this->m_data; }
 
-    T* getRawDataDanger() {
+    T *getRawDataDanger() {
       return m_data;
     }
   };
@@ -295,8 +301,8 @@ namespace ASC_bla {
 //   return std::pair(L, U);
 // }
 
-  template<typename T, ORDERING ORD>
-  std::ostream &operator<<(std::ostream &ost, const Matrix<T, ORD> &M) {
+  template<typename T>
+  std::ostream &operator<<(std::ostream &ost, const MatrixExpr<T> &M) {
     for (size_t i = 0; i < M.rows(); i++) {
       if (M.cols() > 0) {
         ost << M(i, 0);
@@ -311,3 +317,4 @@ namespace ASC_bla {
   }
 };
 #endif
+
