@@ -11,10 +11,10 @@ namespace ASC_bla {
     ColMajor, RowMajor
   };
 
-  template<typename T, ORDERING ORD>
+  template<typename T, ORDERING ORD = RowMajor>
   class MatrixView : public MatrixExpr<MatrixView<T, ORD>> {
   protected:
-    size_t m_rows, m_cols;
+    size_t m_rows, m_cols, m_dist;
     T *m_data;
 
   public:
@@ -27,25 +27,27 @@ namespace ASC_bla {
         : m_data(m2.m_data), m_rows(m2.m_rows), m_cols(m2.m_cols) {}
 
     MatrixView(size_t rows, size_t cols, T *data)
-        : m_data(data), m_rows(rows), m_cols(cols) {}
+        : m_data(data), m_rows(rows), m_cols(cols) {
+      m_dist = (ORD == RowMajor) ? cols : rows;
+    }
 
     auto row(size_t i) const {
       assert(i < m_rows);
       if constexpr (ORD == RowMajor) {
-        return VectorView<T>(m_cols, &m_data[i * m_cols]);
+        return VectorView<T>(m_cols, &m_data[i * m_dist]);
       }
       if constexpr (ORD == ColMajor) {
-        return VectorView<T, size_t>(m_cols, m_cols, &m_data[i]);
+        return VectorView<T, size_t>(m_cols, m_dist, &m_data[i]);
       }
     }
 
     auto col(size_t i) const {
       assert(i < m_cols);
       if constexpr (ORD == RowMajor) {
-        return VectorView<T, size_t>(m_rows, m_rows, &m_data[i]);
+        return VectorView<T, size_t>(m_rows, m_dist, &m_data[i]);
       }
       if constexpr (ORD == ColMajor) {
-        return VectorView<T>(m_rows, &m_data[i * m_rows]);
+        return VectorView<T>(m_cols, &m_data[i * m_dist]);
       }
     }
 
@@ -76,19 +78,19 @@ namespace ASC_bla {
 
     T &operator()(size_t i, size_t j) {
       if constexpr (ORD == RowMajor) {
-        return m_data[i * m_cols + j];
+        return m_data[i * m_dist + j];
       }
       if constexpr (ORD == ColMajor) {
-        return m_data[i + m_rows * j];
+        return m_data[i + m_dist * j];
       }
     }
 
     const T &operator()(size_t i, size_t j) const {
       if constexpr (ORD == RowMajor) {
-        return m_data[i * m_cols + j];
+        return m_data[i * m_dist + j];
       }
       if constexpr (ORD == ColMajor) {
-        return m_data[i + m_rows * j];
+        return m_data[i + m_dist * j];
       }
     }
   };
@@ -96,8 +98,9 @@ namespace ASC_bla {
   template<typename T, ORDERING ORD>
   class Matrix : public MatrixView<T, ORD> {
     typedef MatrixView<T, ORD> BASE;
-    using BASE::m_cols;
     using BASE::m_rows;
+    using BASE::m_cols;
+    using BASE::m_dist;
     using BASE::m_data;
   public:
     Matrix(size_t rows, size_t cols)
@@ -105,7 +108,17 @@ namespace ASC_bla {
       ;
     }
 
-    Matrix(const Matrix &m) : Matrix(m.rows(), m.cols()) { *this = m; }
+    using BASE::operator=;
+
+    Matrix(const Matrix &m) : Matrix(m.rows(), m.cols()) {
+      for (size_t i = 0; i < m.rows(); i++) {
+        for (size_t j = 0; j < m.cols(); j++) {
+          (*this)(i, j) = m(i, j);
+        }
+      }
+    }
+
+//    Matrix(const Matrix &m) : Matrix(m.rows(), m.cols()) { *this = m; }
 
     Matrix &operator=(Matrix &&m2) {
       std::swap(this->m_rows, m2.m_rows);
@@ -114,8 +127,6 @@ namespace ASC_bla {
       return *this;
     }
 
-    using BASE::operator=;
-
     template<typename TB>
     Matrix(const MatrixExpr<TB> &m)
         : Matrix(m.rows(), m.cols()) {
@@ -123,6 +134,10 @@ namespace ASC_bla {
     }
 
     ~Matrix() { delete[] this->m_data; }
+
+    T* getRawDataDanger() {
+      return m_data;
+    }
   };
 
 // template <typename T1, typename T2, ORDERING ORD1, ORDERING ORD2>

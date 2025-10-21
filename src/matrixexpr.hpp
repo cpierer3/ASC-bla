@@ -40,46 +40,25 @@ namespace ASC_bla {
     return SumMatrixExpr(a.derived(), b.derived());
   }
 
-  // ***************** Scalar multiplication of a matrix *****************
-  template<typename TA, typename TS>
-  class ScalMultMatrixExpr : public MatrixExpr<ScalMultMatrixExpr<TA, TS>> {
-    TA a;
-    TS s;
-  public:
-    ScalMultMatrixExpr(TA _a, TS _s) : a(_a), s(_s) {}
-    auto operator()(size_t i, size_t j) const { return s * a(i, j); }
-    size_t rows() const { return a.rows(); }
-    size_t cols() const { return a.cols(); }
-  };
 
-  template<typename TA, typename TS>
-  auto operator*(const MatrixExpr<TA> &a, TS s) {
-    return ScalMultMatrixExpr(a.derived(), s);
-  }
-
-  template<typename TA, typename TS>
-  auto operator*(TS s, const MatrixExpr<TA> &a) {
-    return a * s;
-  }
-
-  // ***************** Matrix multiplication *****************
+  // ***************** Matrix times Matrix *****************
   template<typename TA, typename TB>
   class MatMultMatrixExpr : public MatrixExpr<MatMultMatrixExpr<TA, TB>> {
     TA a;
     TB b;
   public:
-    MatMultMatrixExpr(TA _a, TB _b) : a(_a), b(_b) {}
+    MatMultMatrixExpr(TA _a, TB _b) : a(_a), b(_b) { }
 
     auto operator()(size_t i, size_t j) const {
-      decltype(a(0, 0) * b(0, 0)) sum = 0;
-      for (size_t k = 0; k < a.cols(); k++) {
-        sum += a(i, k) * b(k, j);
-      }
-      return sum;
+      return dot(a.row(i), b.col(j));
     }
 
-    size_t rows() const { return a.rows(); }
-    size_t cols() const { return b.cols(); }
+    size_t rows() const {
+      return a.rows();
+    }
+    size_t cols() const {
+      return b.cols();
+    }
   };
 
   template<typename TA, typename TB>
@@ -88,6 +67,22 @@ namespace ASC_bla {
     return MatMultMatrixExpr(a.derived(), b.derived());
   }
 
+//  // ***************** Scalar multiplication of a matrix *****************
+//  template<typename TA, typename TS>
+//  class ScalMultMatrixExpr : public MatrixExpr<ScalMultMatrixExpr<TA, TS>> {
+//    TA s;
+//    MatrixExpr<TS> m;
+//  public:
+//    ScalMultMatrixExpr(TA _s, MatrixExpr<TS> _m) : m(_m), s(_s) {}
+//    auto operator()(size_t i, size_t j) const { return m(i, j) * s; }
+//    size_t rows() const { return m.rows(); }
+//    size_t cols() const { return m.cols(); }
+//  };
+//
+//  template<typename TA, typename TS>
+//  auto operator*(TS s, const MatrixExpr<TA> &m) {
+//    return ScalMultMatrixExpr(m.derived(), s);
+//  }
 }
 
 #endif

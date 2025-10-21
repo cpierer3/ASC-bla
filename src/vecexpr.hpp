@@ -2,7 +2,7 @@
 #define FILE_EXPRESSION
 
 #include <cassert>
-
+#include "matrixexpr.hpp"
 namespace ASC_bla
 {
 
@@ -83,7 +83,31 @@ namespace ASC_bla
       ost << ", " << v(i);
     return ost;
   }
-  
+
+
+  // ***************** Matrix times vector *****************
+  template<typename TA, typename TB>
+  class MatTimesVecExpr : public VecExpr<MatTimesVecExpr <TA, TB>> {
+    TA a;
+    TB b;
+  public:
+    MatTimesVecExpr (TA _a, TB _b) : a(_a), b(_b) {}
+
+    auto operator()(size_t i) const {
+      return dot(a.row(i), b);
+    }
+
+    // provide size so VecExpr::size() works
+    size_t size() const { return a.rows(); }
+
+  };
+
+  // accept const matrix expressions
+  template<typename TA, typename TB>
+  auto operator*(const MatrixExpr<TA> &a, const VecExpr<TB> &b) {
+    assert (a.cols() == b.size());
+    return MatTimesVecExpr(a.derived(), b.derived());
+  }
 }
  
 #endif
