@@ -89,6 +89,13 @@ void test_multiplications() {
   assert(std::abs(Av(1) + 2.0) < 1e-12);
 
   cout << "Matrix-matrix and matrix-vector multiplication tests passed.\n";
+
+  auto A_scaled = 2.0 * A;
+  assert(A_scaled(0,0) == 2.0);
+  assert(A_scaled(1,2) == 12.0);
+
+  cout << "Matrix-scalar tests passed.\n";
+
 }
 
 int main() {

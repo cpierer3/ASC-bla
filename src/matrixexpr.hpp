@@ -53,18 +53,33 @@ namespace ASC_bla {
       return dot(a.row(i), b.col(j));
     }
 
-    size_t rows() const {
-      return a.rows();
-    }
-    size_t cols() const {
-      return b.cols();
-    }
+    size_t rows() const { return a.rows(); }
+    size_t cols() const { return b.cols(); }
   };
 
   template<typename TA, typename TB>
   auto operator*(const MatrixExpr<TA> &a, const MatrixExpr<TB> &b) {
     assert (a.cols() == b.rows());
     return MatMultMatrixExpr(a.derived(), b.derived());
+  }
+
+  // ***************** Scaling a matrix *****************
+  template <typename TSCAL, typename TM>
+  class ScaleMatrixExpr : public MatrixExpr<ScaleMatrixExpr<TSCAL,TM>>
+  {
+    TSCAL scal;
+    TM mat;
+  public:
+    ScaleMatrixExpr(TSCAL _scal, TM _mat) : scal(_scal), mat(_mat) { }
+    auto operator() (size_t i, size_t j) const { return scal*mat(i,j); }
+    size_t rows() const { return mat.rows(); }
+    size_t cols() const { return mat.cols(); }
+  };
+
+  template <typename T>
+  auto operator* (double scal, const MatrixExpr<T> & v)
+  {
+    return ScaleMatrixExpr(scal, v.derived());
   }
 
 //  // ***************** Scalar multiplication of a matrix *****************
