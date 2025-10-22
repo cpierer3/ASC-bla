@@ -17,8 +17,7 @@ namespace ASC_bla {
     auto operator()(size_t i, size_t j) const { return derived()(i, j); }
   };
 
-  // ***************** Sum of two vectors *****************
-
+  // ***************** Sum of two matrices *****************
   template<typename TA, typename TB>
   class SumMatrixExpr : public MatrixExpr<SumMatrixExpr<TA, TB>> {
     TA a;
@@ -38,6 +37,25 @@ namespace ASC_bla {
     assert (a.rows() == b.rows());
     assert (a.cols() == b.cols());
     return SumMatrixExpr(a.derived(), b.derived());
+  }
+
+  // ***************** Difference of two matrices *****************
+  template<typename TA, typename TB>
+  class DifMatrixExpr : public MatrixExpr<DifMatrixExpr<TA, TB>> {
+    TA a;
+    TB b;
+  public:
+    DifMatrixExpr(TA _a, TB _b) : a(_a), b(_b) {}
+    auto operator()(size_t i, size_t j) const { return a(i, j) - b(i, j); }
+    size_t rows() const { return a.rows(); }
+    size_t cols() const { return a.cols(); }
+  };
+
+  template<typename TA, typename TB>
+  auto operator-(const MatrixExpr<TA> &a, const MatrixExpr<TB> &b) {
+    assert (a.rows() == b.rows());
+    assert (a.cols() == b.cols());
+    return DifMatrixExpr(a.derived(), b.derived());
   }
 
 

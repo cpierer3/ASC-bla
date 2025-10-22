@@ -1,6 +1,7 @@
 #include <iostream>
 #include <matrix.hpp>
 #include <cassert>
+#include <cmath>
 
 namespace bla = ASC_bla;
 
@@ -192,11 +193,73 @@ void test_transpose() {
   cout << "Transpose test passed.\n";
 }
 
+void test_inverse() {
+  using namespace std;
+  namespace bla = ASC_bla;
+
+  // Test 2x2 matrix inversion
+  bla::Matrix<double, bla::RowMajor> A(2, 2);
+  A(0,0) = 4;  A(0,1) = 7;
+  A(1,0) = 2;  A(1,1) = 6;
+
+  ASC_bla::Matrix<double, ASC_bla::RowMajor> Ainv = A.inverse();
+
+  cout << "A:\n" << A << endl;
+  cout << "A^(-1):\n" << Ainv << endl;
+
+  // Verify A * A^(-1) = I
+  auto I = A * Ainv;
+  cout << "A * A^(-1):\n" << I << endl;
+
+  assert(abs(I(0,0) - 1.0) < 1e-10);
+  assert(abs(I(0,1)) < 1e-10);
+  assert(abs(I(1,0)) < 1e-10);
+  assert(abs(I(1,1) - 1.0) < 1e-10);
+
+  // Test 3x3 matrix inversion
+  bla::Matrix<double, bla::RowMajor> B(3, 3);
+  B(0,0) = 1;  B(0,1) = 2;  B(0,2) = 3;
+  B(1,0) = 0;  B(1,1) = 1;  B(1,2) = 4;
+  B(2,0) = 5;  B(2,1) = 6;  B(2,2) = 0;
+
+  auto Binv = B.inverse();
+
+  cout << "B:\n" << B << endl;
+  cout << "B^(-1):\n" << Binv << endl;
+
+  // Verify B * B^(-1) = I
+  auto I2 = B * Binv;
+  cout << "B * B^(-1):\n" << I2 << endl;
+
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 3; j++) {
+      double expected = (i == j) ? 1.0 : 0.0;
+      assert(abs(I2(i,j) - expected) < 1e-9);
+    }
+  }
+
+  // Test with ColMajor matrix
+  bla::Matrix<double, bla::ColMajor> C(2, 2);
+  C(0,0) = 3;  C(0,1) = 2;
+  C(1,0) = 1;  C(1,1) = 4;
+
+  auto Cinv = C.inverse();
+  auto I3 = C * Cinv;
+
+  assert(abs(I3(0,0) - 1.0) < 1e-10);
+  assert(abs(I3(0,1)) < 1e-10);
+  assert(abs(I3(1,0)) < 1e-10);
+  assert(abs(I3(1,1) - 1.0) < 1e-10);
+
+  cout << "Inverse test passed.\n";
+}
+
 int main() {
   test_row_major_and_col_major();
   test_rows_view();
   test_cols_view();
   test_transpose();
+  test_inverse();
   test_multiplications();
   size_t n = 3;
   size_t m = 3;

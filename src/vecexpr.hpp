@@ -14,8 +14,8 @@ namespace ASC_bla
     size_t size() const { return derived().size(); }
     auto operator() (size_t i) const { return derived()(i); }
   };
-  
- // ***************** Sum of two vectors *****************
+
+  // ***************** Sum of two vectors *****************
 
   template <typename TA, typename TB>
   class SumVecExpr : public VecExpr<SumVecExpr<TA,TB>>
@@ -25,14 +25,34 @@ namespace ASC_bla
   public:
     SumVecExpr (TA _a, TB _b) : a(_a), b(_b) { }
     auto operator() (size_t i) const { return a(i)+b(i); }
-    size_t size() const { return a.size(); }      
+    size_t size() const { return a.size(); }
   };
-  
+
   template <typename TA, typename TB>
   auto operator+ (const VecExpr<TA> & a, const VecExpr<TB> & b)
   {
     assert (a.size() == b.size());
     return SumVecExpr(a.derived(), b.derived());
+  }
+
+  // ***************** Difference of two vectors *****************
+
+  template <typename TA, typename TB>
+  class DifVecExpr : public VecExpr<DifVecExpr<TA,TB>>
+  {
+    TA a;
+    TB b;
+  public:
+    DifVecExpr (TA _a, TB _b) : a(_a), b(_b) { }
+    auto operator() (size_t i) const { return a(i)-b(i); }
+    size_t size() const { return a.size(); }      
+  };
+  
+  template <typename TA, typename TB>
+  auto operator- (const VecExpr<TA> & a, const VecExpr<TB> & b)
+  {
+    assert (a.size() == b.size());
+    return DifVecExpr(a.derived(), b.derived());
   }
 
 
