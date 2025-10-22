@@ -10,9 +10,9 @@ namespace ASC_bla
   class VecExpr
   {
   public:
-    auto derived() const { return static_cast<const T&> (*this); }
+    auto derived() const { return static_cast<const T&> (*this); }//casts the VecExpr into the class that we are initiated with
     size_t size() const { return derived().size(); }
-    auto operator() (size_t i) const { return derived()(i); }
+    auto operator() (size_t i) const { return derived()(i); }//supposedly casts parts of the vector
   };
   
  // ***************** Sum of two vectors *****************
@@ -55,14 +55,13 @@ namespace ASC_bla
     return ScaleVecExpr(scal, v.derived());
   }
 
-  // **************** dot product of two vectors *****************
  
   template <typename TA, typename TB>
   auto dot (const VecExpr<TA> & a, const VecExpr<TB> & b)
   {
     assert (a.size() == b.size());
 
-    using elemtypeA = typename std::invoke_result<TA,size_t>::type;
+    using elemtypeA = typename std::invoke_result<TA,size_t>::type; //elementypeA is return type of TA being called with argument size t, so TA(t)
     using elemtypeB = typename std::invoke_result<TB,size_t>::type;
     using TSUM = decltype(std::declval<elemtypeA>()*std::declval<elemtypeB>());
 
