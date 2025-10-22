@@ -6,4 +6,4 @@ add_executable (demo_vector demo_vector.cpp)
 target_sources (demo_vector PUBLIC ../src/vector.hpp ../src/vecexpr.hpp)
 
 add_executable (demo_matrix demo_matrix.cpp)
-target_sources (demo_matrix PUBLIC ../src/vector.hpp ../src/vecexpr.hpp ../src/matrix.hpp ../src/matrixexpr.hpp)
+target_sources (demo_matrix PUBLIC ../src/vector.hpp ../src/vecexpr.hpp ../src/matrixview.hpp ../src/matrixexpr.hpp)

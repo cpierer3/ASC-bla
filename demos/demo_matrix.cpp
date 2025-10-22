@@ -1,6 +1,6 @@
 #include <iostream>
-#include <matrix.hpp>
 #include <cassert>
+#include <matrixview.hpp>
 #include <cmath>
 
 namespace bla = ASC_bla;
