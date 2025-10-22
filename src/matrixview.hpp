@@ -1,167 +1,272 @@
 #ifndef FILE_MATRIX
 #define FILE_MATRIX
 
+#include <cmath>
 #include <iostream>
-#include "matrixexpr.hpp"
+#include <matrixexpr.hpp>
+#include <vector.hpp>
 
+namespace ASC_bla {
+  enum ORDERING { ColMajor, RowMajor };
 
-namespace ASC_bla
-{
+  template<typename T, ORDERING ORD>
+  class MatrixView : public MatrixExpr<MatrixView<T, ORD>> {
+  protected:
+    size_t m_rows, m_cols, m_dist;
+    T *m_data;
 
-enum ORDERING { ColMajor, RowMajor};
-template <typename T, ORDERING ORD>
-class MatrixView {
-protected:
-  size_t m_rows, m_cols, m_dist;
-  T * m_data;
-
-public:
-    MatrixView() = default;
+  public:
     MatrixView(const MatrixView &) = default;
 
-    template <ORDERING ORD2>
-    MatrixView (const MatrixView <T,ORD2> & M2)
-    : m_rows(M2.Rows()), m_cols(M2.Cols()), m_dist(M2.dist()) {}
+    MatrixView(size_t rows, size_t cols, size_t dist, T *data)
+        : m_data(data), m_rows(rows), m_cols(cols), m_dist(dist) {}
 
-    MatrixView (size_t rows, size_t cols, T* data)
-    : m_rows(rows), m_cols(cols), m_data(data) {
-        if constexpr (ORD == RowMajor){
-            m_dist = m_cols;
-        }
-        else { m_dist = m_rows; }
-    }
-    MatrixView (size_t rows, size_t cols, size_t dist, T* data)
-    : m_data(data), m_rows(rows), m_cols(cols), m_dist(dist) {}
+    MatrixView(size_t rows, size_t cols, T *data) : MatrixView(rows, cols, ORD == RowMajor ? cols : rows, data) {}
 
-    template <typename TB>
-    MatrixView & operator= (const MatrixExpr <TB> & M2)
-    {
-        assert (m_rows == M2.rows() && m_cols == M2.cols());
-        for (size_t i = 0; i < m_rows; i++){
-            for (size_t j = 0; j < m_cols; j++){
-                if constexpr (ORD == RowMajor){
-                    m_data[i*m_dist+j] = M2(i,j);
-                }
-                else
-                    m_data[i+j*m_dist] = M2(i,j);
-            }
-        }
-        return *this;
+    auto row(size_t i) const {
+      assert(i < m_rows);
+      if constexpr (ORD == RowMajor) {
+        return VectorView<T>(m_cols, &m_data[i * m_dist]);
+      }
+      if constexpr (ORD == ColMajor) {
+        return VectorView<T, size_t>(m_cols, m_dist, &m_data[i]);
+      }
     }
 
-    MatrixView & operator= (T scal)
-    {
-        for (size_t i = 0; i < m_rows; i++){
-            for (size_t j = 0; j < m_cols; j++){
-                if constexpr (ORD == RowMajor)
-                m_data[i*m_dist+j] = scal;
-                else
-                m_data[i+m_dist*j]= scal;
-            }
-        }
-        return *this;
+    auto col(size_t i) const {
+      assert(i < m_cols);
+      if constexpr (ORD == RowMajor) {
+        return VectorView<T, size_t>(m_rows, m_dist, &m_data[i]);
+      }
+      if constexpr (ORD == ColMajor) {
+        return VectorView<T>(m_cols, &m_data[i * m_dist]);
+      }
     }
 
-    T * data() const{ return m_data;}
-    size_t cols() const { return m_cols;}
-    size_t rows() const { return m_rows;}
-    size_t dist() const { return m_dist;}
-
-    T & operator() (size_t i, size_t j) {
-        if constexpr (ORD == RowMajor){
-            return m_data[i*m_dist+j];
-        }
-        else
-            return m_data[i+m_dist*j];
+    auto rows(size_t first, size_t next) const {
+      assert(first <= next && next <= m_rows);
+      if constexpr (ORD == RowMajor) {
+        return MatrixView<T, ORD>(next - first, m_cols, &m_data[first * m_dist]);
+      }
+      if constexpr (ORD == ColMajor) {
+        return MatrixView<T, ORD>(next - first, m_cols, m_dist, &m_data[first]);
+      }
     }
-};
- template <typename T, ORDERING ORD>
- class Matrix : public MatrixView<T, ORD>
- {
+
+    auto cols(size_t first, size_t next) const {
+      assert(first <= next && next <= m_cols);
+      if constexpr (ORD == RowMajor) {
+        return MatrixView<T, ORD>(m_rows, next - first, m_dist, &m_data[first]);
+      }
+      if constexpr (ORD == ColMajor) {
+        return MatrixView<T, ORD>(m_rows, next - first, &m_data[first * m_dist]);
+      }
+    }
+
+    auto transpose() const {
+      if constexpr (ORD == RowMajor) {
+        return MatrixView<T, ColMajor>(m_cols, m_rows, m_data);
+      }
+      if constexpr (ORD == ColMajor) {
+        return MatrixView<T, RowMajor>(m_cols, m_rows, m_data);
+      }
+    }
+
+
+    MatrixView &operator=(const MatrixView<T, ORD> &m2) {
+      assert(m_rows == m2.rows());
+      assert(m_cols == m2.cols());
+      std::cout << "Assigning MatrixView of size (" << m_rows << ", " << m_cols << ")\n";
+      for (int i = 0; i < rows(); i++) {
+        for (int j = 0; j < cols(); j++) {
+          (*this)(i, j) = m2(i, j);
+        }
+      }
+      return *this;
+    }
+
+    template<typename TB>
+    MatrixView &operator=(const MatrixExpr<TB> &m2) {
+      assert(m_rows == m2.rows());
+      assert(m_cols == m2.cols());
+      for (int i = 0; i < rows(); i++) {
+        for (int j = 0; j < cols(); j++) {
+          (*this)(i, j) = m2(i, j);
+        }
+      }
+      return *this;
+    }
+
+    MatrixView &operator=(T scal) {
+      for (int i = 0; i < rows(); i++) {
+        for (int j = 0; j < cols(); j++) {
+          *this(i, j) = scal;
+        }
+      }
+      return *this;
+    }
+
+    size_t rows() const { return m_rows; }
+
+    size_t cols() const { return m_cols; }
+
+    T &operator()(size_t i, size_t j) {
+      if constexpr (ORD == RowMajor) {
+        return m_data[i * m_dist + j];
+      }
+      if constexpr (ORD == ColMajor) {
+        return m_data[i + m_dist * j];
+      }
+    }
+
+    const T &operator()(size_t i, size_t j) const {
+      if constexpr (ORD == RowMajor) {
+        return m_data[i * m_dist + j];
+      }
+      if constexpr (ORD == ColMajor) {
+        return m_data[i + m_dist * j];
+      }
+    }
+  };
+
+  template<typename T, ORDERING ORD>
+  class Matrix : public MatrixView<T, ORD> {
     typedef MatrixView<T, ORD> BASE;
     using BASE::m_rows;
     using BASE::m_cols;
+    using BASE::m_dist;
     using BASE::m_data;
-public:
-    Matrix (size_t rows, size_t cols)
-        : MatrixView <T, ORD> (rows, cols, new T[rows*cols]) { }
+  public:
+    Matrix(size_t rows, size_t cols)
+        : MatrixView<T, ORD>(rows, cols, new T[rows * cols]) {}
 
-    Matrix (const Matrix & M)                   //delegating consr
-        : Matrix(M.rows(), M.cols())
-    {
-        *this = M;
+    template<typename TB>
+    Matrix(const MatrixExpr<TB> &m2) : Matrix(m2.rows(), m2.cols()) {
+      *this = m2;
     }
 
-    Matrix (Matrix && M)
-        : MatrixView<T, ORD> (0, nullptr)
-    {
-        std::swap(m_rows, M.m_rows);
-        std::swap(m_cols, M.m_cols);
-        std::swap(m_data, M.m_data);
+    Matrix(Matrix &&other) noexcept
+        : MatrixView<T, ORD>(0, 0, 0, nullptr) {
+      std::swap(m_data, other.m_data);
+      std::swap(m_rows, other.m_rows);
+      std::swap(m_cols, other.m_cols);
+      std::swap(m_dist, other.m_dist);
     }
 
-    template <typename TB>
-    Matrix (const MatrixExpr <TB> & M)
-        : Matrix(M.rows(), M.cols())
-    {
-        *this = M;
+    // assign from any MatrixExpr (deep-copy element-wise)
+    template<typename TB>
+    Matrix &operator=(const MatrixExpr<TB> &m2) {
+      MatrixView<T, ORD>::operator=(m2);
+      return *this;
     }
 
-    ~Matrix () { delete [] m_data; }
+    // copy assign (deep-copy)
+    Matrix &operator=(const Matrix &other) {
+      assert(m_rows == other.m_rows);
+      assert(m_cols == other.m_cols);
+      *this = other;
+      return *this;
+    }
 
-    using BASE::operator=;
-    Matrix & operator= (const Matrix & M2)
-    {
-        assert (m_rows == M2.m_rows && m_cols == M2.m_cols);
-        for (size_t i = 0; i < m_rows; i++){
-            for (size_t j = 0; j < m_cols; j++){
-                if constexpr (ORD == RowMajor)
-                    m_data[i*m_dist+j] = M2(i,j);
-            }
+    // move assign (steal ownership)
+    Matrix &operator=(Matrix &&other) noexcept {
+      m_rows = 0;
+      m_cols = 0;
+      m_dist = 0;
+      m_data = nullptr;
+      std::swap(m_data, other.m_data);
+      std::swap(m_rows, other.m_rows);
+      std::swap(m_cols, other.m_cols);
+      std::swap(m_dist, other.m_dist);
+      return *this;
+    }
+
+    ~Matrix() {
+      if (m_data) {
+        delete[] this->m_data;
+        m_data = nullptr;
+      }
+    }
+
+    T *getRawDataDanger() {
+      return m_data;
+    }
+
+    Matrix<T, ORD> inverse() const {
+      if (m_rows != m_cols) {
+        throw std::invalid_argument("Error: Matrix must be square for inversion");
+      }
+      size_t n = m_rows;
+      Matrix<T, ORD> aug(n, 2 * n);
+
+      // Copy A into left half and identity into right half
+      for (size_t i = 0; i < n; i++) {
+        for (size_t j = 0; j < n; j++) {
+          aug(i, j) = (*this)(i, j);
+          aug(i, j + n) = (i == j) ? 1.0 : 0.0;
         }
-    }
+      }
 
-    Matrix & operator= (Matrix && M2)
-    {
-        std::swap(m_rows, M2.m_rows);
-        std::swap(m_cols, M2.m_cols);
-        std::swap(m_data, M2.m_data);
-        return *this
-    }
-
-    size_t Rows() const { return m_rows;}
-    size_t Cols() const { return m_cols;}
-
-    T & operator() (size_t i, size_t j)
-    {
-        if constexpr (ORD == RowMajor)
-            return m_data[i * m_cols + j];
-        else
-            return m_data[j * m_rows + i];
-    }
-    const T& operator() (site_t i, size_tj) const 
-    {
-        if constexpr (ORD == RowMajor)
-            return m_data[i * m_cols + j];
-        else
-            return m_data[j * m_rows + i];
-    }
- };
-
-  template <typename T, ORDERING ORD>
-  std::ostream & operator<< (std::ostream & ost, const Matrix<T, ORD> & M)
-  {
-    for (size_t i = 0; i < M.Height(); i++){
-        for (size_t j = 0; j < M.Width(); j++){
-            ost << ", " << M(i,j);
+      // Gauss-Jordan elimination
+      for (size_t pivot = 0; pivot < n; pivot++) {
+        // Find the row with largest pivot element (partial pivoting)
+        size_t max_row = pivot;
+        T max_val = std::abs(aug(pivot, pivot));
+        for (size_t i = pivot + 1; i < n; i++) {
+          T val = std::abs(aug(i, pivot));
+          if (val > max_val) {
+            max_val = val;
+            max_row = i;
+          }
         }
-        ost << "\n";
+
+        if (max_val < 1e-14) {
+          throw std::runtime_error("Error: Matrix is singular, cannot invert");
+        }
+
+        // Swap rows if needed
+        if (max_row != pivot) {
+          for (size_t j = 0; j < 2 * n; j++) {
+            std::swap(aug(pivot, j), aug(max_row, j));
+          }
+        }
+
+        // Scale pivot row to make diagonal element = 1
+        T pivot_val = aug(pivot, pivot);
+        auto pivot_row = aug.row(pivot);
+        pivot_row = (1.0 / pivot_val) * pivot_row;
+
+        // Eliminate column in all other rows
+        for (size_t i = 0; i < n; i++) {
+          if (i != pivot) {
+            T factor = aug(i, pivot);
+            auto current_row = aug.row(i);
+            current_row = current_row - factor * pivot_row;
+          }
+        }
+      }
+
+      // Extract the inverse from the right half
+      Matrix<T, ORD> inv(n, n);
+      inv = aug.cols(n, 2 * n);
+
+      return inv;
     }
-      
+  };
+
+  template<typename T>
+  std::ostream &operator<<(std::ostream &ost, const MatrixExpr<T> &M) {
+    for (size_t i = 0; i < M.rows(); i++) {
+      if (M.cols() > 0) {
+        ost << M(i, 0);
+      }
+      for (size_t j = 1; j < M.cols(); j++) {
+        ost << ", " << M(i, j);
+      }
+      ost << "\n";
+    }
+
     return ost;
   }
-}
-
-
-
+};
 #endif
