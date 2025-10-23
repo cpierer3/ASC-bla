@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.20)
 project(ASC_bla)
 
+# Set default CMAKE_BUILD_TYPE to RelWithDebInfo if not specified
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build." FORCE)
+endif()
+
+
 set (CMAKE_CXX_STANDARD 17)
 
 include_directories(src)
