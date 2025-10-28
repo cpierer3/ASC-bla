@@ -82,7 +82,7 @@ namespace ASC_bla
 
     int err =
       dgemm_ (&transa_, &transb_, &n, &m, &k, &alpha, 
-              a.Data(), &lda, b.Data(), &ldb, &beta, c.Data(), &ldc);
+              a.data(), &lda, b.data(), &ldb, &beta, c.data(), &ldc);
 
     if (err != 0)
       throw std::runtime_error(std::string("MultMatMat got error "+std::to_string(err)));
@@ -121,7 +121,7 @@ namespace ASC_bla
     }
     
     // b overwritten with A^{-1} b
-    void Solve (VectorView<double> b) const {
+    void solve (VectorView<double> b) const {
       char transa =  (ORD == ColMajor) ? 'N' : 'T';
       integer n = a.rows();
       integer nrhs = 1;
@@ -133,10 +133,10 @@ namespace ASC_bla
       //             doublereal *a, integer *lda, integer *ipiv,
       //             doublereal *b, integer *ldb, integer *info);
 
-      dgetrs_(&transa, &n, &nrhs, a.Data(), &lda, (integer*)ipiv.data(), b.Data(), &ldb, &info);
+      dgetrs_(&transa, &n, &nrhs, a.data(), &lda, (integer*)ipiv.data(), b.data(), &ldb, &info);
     }
   
-    Matrix<double,ORD> Inverse() && {
+    Matrix<double,ORD> inverse() && {
       double hwork;
       integer lwork = -1;
       integer n = a.Height();      
