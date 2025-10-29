@@ -1,7 +1,7 @@
 from skbuild import setup
 
 import sys
-_cmake_args = []
+_cmake_args = ["-DCMAKE_BUILD_TYPE=Release"]
 
 if 'win32' in sys.platform:
     _cmake_args += ['-G', 'MinGW Makefiles']

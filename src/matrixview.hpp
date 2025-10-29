@@ -76,7 +76,6 @@ namespace ASC_bla {
     MatrixView &operator=(const MatrixView<T, ORD> &m2) {
       assert(m_rows == m2.rows());
       assert(m_cols == m2.cols());
-      std::cout << "Assigning MatrixView of size (" << m_rows << ", " << m_cols << ")\n";
       for (int i = 0; i < rows(); i++) {
         for (int j = 0; j < cols(); j++) {
           (*this)(i, j) = m2(i, j);
@@ -139,6 +138,11 @@ namespace ASC_bla {
   public:
     Matrix(size_t rows, size_t cols)
         : MatrixView<T, ORD>(rows, cols, new T[rows * cols]) {}
+
+    Matrix(const Matrix &other)
+        : Matrix(other.rows(), other.cols()) {
+      *this = other;
+    }
 
     template<typename TB>
     Matrix(const MatrixExpr<TB> &m2) : Matrix(m2.rows(), m2.cols()) {

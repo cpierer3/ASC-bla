@@ -68,7 +68,14 @@ namespace ASC_bla {
     MatMultMatrixExpr(TA _a, TB _b) : a(_a), b(_b) { }
 
     auto operator()(size_t i, size_t j) const {
-        return dot(a.row(i), b.col(j));
+      using elemtypeA = typename std::invoke_result<TA, size_t, size_t>::type;
+      using elemtypeB = typename std::invoke_result<TB, size_t, size_t>::type;
+      using TSUM = decltype(std::declval<elemtypeA>() * std::declval<elemtypeB>());
+      TSUM sum = 0;
+      for (size_t k = 0; k < a.cols(); k++) {
+        sum += a(i, k) * b(k, j);
+      }
+      return sum;
     }
 
     size_t rows() const { return a.rows(); }
