@@ -1,10 +1,12 @@
 # search for libraray like bla.cpython-312-darwin.so in the build directory:
-# import sys
+import sys
 # sys.path.append('/Users/joachim/texjs/lva/ws2324/ScientificComputing/ASC-bla/build')
+# sys.path.append('../build')
 # from bla import Vector
 
 # import from the installed ASCsoft package:
 from ASCsoft.bla import Vector
+# from bla import Vector
 
 x = Vector(3)
 y = Vector(3)
