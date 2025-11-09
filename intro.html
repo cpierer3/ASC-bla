@@ -32,7 +32,7 @@
     <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
     <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
@@ -343,6 +343,12 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-asc-bla">Using ASC-bla</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-features">Advanced Features</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expression-templates-for-efficient-operations">Expression Templates for Efficient Operations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#matrix-views-submatrices-rows-columns-and-transpose">Matrix Views: Submatrices, Rows, Columns, and Transpose</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fundamental-matrix-operations-such-as-inversion">Fundamental Matrix operations such as inversion</a></li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -411,7 +417,66 @@ default is row-major.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Vector</span><span class="w"> </span><span class="n">col1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">product</span><span class="p">.</span><span class="n">Col</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>some changes …</p>
+</section>
+<hr class="docutils" />
+<section id="advanced-features">
+<h2>Advanced Features<a class="headerlink" href="#advanced-features" title="Link to this heading">#</a></h2>
+<section id="expression-templates-for-efficient-operations">
+<h3>Expression Templates for Efficient Operations<a class="headerlink" href="#expression-templates-for-efficient-operations" title="Link to this heading">#</a></h3>
+<p>ASC-bla uses expression templates to enable efficient and elegant matrix and vector operations. This means you can write code like:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">A</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="n">B</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="n">C</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">);</span>
+<span class="c1">// ... initialize A and B ...</span>
+<span class="n">C</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">B</span><span class="p">;</span><span class="w">         </span><span class="c1">// Matrix addition</span>
+<span class="n">C</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">B</span><span class="p">;</span><span class="w">         </span><span class="c1">// Matrix subtraction</span>
+<span class="n">C</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">;</span><span class="w">       </span><span class="c1">// Scalar multiplication</span>
+<span class="n">C</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">;</span><span class="w">         </span><span class="c1">// Matrix-matrix multiplication</span>
+</pre></div>
+</div>
+<p>These operations are performed efficiently without unnecessary temporary objects, thanks to the expression template mechanism in the library.</p>
+</section>
+<section id="matrix-views-submatrices-rows-columns-and-transpose">
+<h3>Matrix Views: Submatrices, Rows, Columns, and Transpose<a class="headerlink" href="#matrix-views-submatrices-rows-columns-and-transpose" title="Link to this heading">#</a></h3>
+<p>ASC-bla provides powerful matrix views, allowing you to work with submatrices, rows, columns, and transposed matrices without copying data:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">M</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">);</span>
+<span class="c1">// ... initialize M ...</span>
+
+<span class="c1">// Extract a row or column as a view</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">row2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span><span class="w">      </span><span class="c1">// 3rd row as a vector view</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">col3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="p">.</span><span class="n">col</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span><span class="w">      </span><span class="c1">// 4th column as a vector view</span>
+
+<span class="c1">// Extract a submatrix (rows 1 to 3)</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">subM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="p">.</span><span class="n">rows</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">);</span><span class="w">   </span><span class="c1">// rows 1,2,3 (end index exclusive)</span>
+
+<span class="c1">// Extract a range of columns</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">subCols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="p">.</span><span class="n">cols</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">);</span><span class="w"> </span><span class="c1">// columns 2,3,4</span>
+
+<span class="c1">// Transpose view (no copy)</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">Mt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="p">.</span><span class="n">transpose</span><span class="p">();</span>
+
+<span class="c1">// Assign to a view</span>
+<span class="n">row2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w">                </span><span class="c1">// set all elements in row 2 to zero</span>
+<span class="n">subM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w">                </span><span class="c1">// set all elements in submatrix to one</span>
+</pre></div>
+</div>
+</section>
+<section id="fundamental-matrix-operations-such-as-inversion">
+<h3>Fundamental Matrix operations such as inversion<a class="headerlink" href="#fundamental-matrix-operations-such-as-inversion" title="Link to this heading">#</a></h3>
+<p>You can compute the inverse of a square matrix using:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">A</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">);</span>
+<span class="c1">// ... initialize A ...</span>
+<span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Ainv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="p">.</span><span class="n">inverse</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>This uses Gauss-Jordan elimination with partial pivoting.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+---
+
+For more details, see the source files `matrixexpr.hpp` and `matrixview.hpp`.
+
+
+</pre></div>
+</div>
+</section>
 </section>
 </section>
 
@@ -463,6 +528,12 @@ default is row-major.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-asc-bla">Using ASC-bla</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-features">Advanced Features</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expression-templates-for-efficient-operations">Expression Templates for Efficient Operations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#matrix-views-submatrices-rows-columns-and-transpose">Matrix Views: Submatrices, Rows, Columns, and Transpose</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fundamental-matrix-operations-such-as-inversion">Fundamental Matrix operations such as inversion</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
