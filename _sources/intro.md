@@ -8,7 +8,7 @@ The library provides template classes **Vector** and **Matrix**.
 
 install it via git-clone:
 
-    git clone https://github.com/TUWien-ASC/ASC-bla.git
+    git clone https://github.com/cpierer3/ASC-bla.git
 
 
 To configure and build some tests do
@@ -113,7 +113,7 @@ row2 = 0.0;                // set all elements in row 2 to zero
 subM = 1.0;                // set all elements in submatrix to one
 ```
 
-### Fundamental Matrix operations such as inversion
+### Further Matrix operations such as inversion
 
 You can compute the inverse of a square matrix using:
 
@@ -125,7 +125,81 @@ Matrix<double> Ainv = A.inverse();
 
 This uses Gauss-Jordan elimination with partial pivoting.
 
+---
+
+## Python Bindings and Usage
+
+ASC-bla provides Python bindings, allowing you to use its high-performance C++ linear algebra routines directly from Python. This is achieved via a shared library (e.g., `bla.cpython-XY-darwin.so`) built with tools like `pybind11` and CMake.
+
+### Installation for Python
+
+To install the ASC-bla C++ library for Python, follow these steps:
+
+1. **Build the C++ library and Python bindings:**
+
+   From the project root, run:
+
+   ```sh
+   mkdir -p build
+   cd build
+   cmake ..
+   make
+   make install 
+   ```
+
+   This will build the shared object for Python (e.g., `bla.cpython-XY-darwin.so`).
+
+2. **Install as a Python package:**
+
+   You can install with pip:
+
+   ```sh
+   pip install .
+   ```
+
+   This will make the ASC-bla Python module available in your environment.
+
+### Using ASC-bla from Python
+
+Once installed, you can import and use the library in Python:
+
+```python
+import ASCsoft.bla as bla
+
+# Create a vector and perform operations
+x = bla.Vector(5)
+y = bla.Vector(5)
+for i in range(5):
+    x[i] = i
+
+y[:] = 5.0
+z = x + 3*y
+print("z =", z)
+
+# Create and use matrices
+A = bla.Matrix(3, 3)
+B = bla.Matrix(3, 3)
+A[:] = 1.0
+B[:] = 2.0
+C = A + B
+print(C)
 ```
+
+The Python API closely mirrors the C++ API, making it easy to switch between languages. All heavy computations are performed in C++ for maximum performance.
+
+### How the Python Binding Works
+
+The Python bindings for ASC-bla are created using [pybind11](https://pybind11.readthedocs.io/), a modern C++ library that exposes C++ classes and functions to Python. When you build the project, a shared library (e.g., `bla.cpython-XY-darwin.so`) is generated and can be imported as a Python module. This module provides direct access to the C++ `Vector` and `Matrix` classes, with methods and operators mapped to Python equivalents.
+
+- **Direct Mapping:** The C++ classes and methods are exposed almost 1:1 in Python, so you can use the same method names and operators.
+- **Performance:** All core computations (arithmetic, slicing, etc.) are performed in C++ for speed, but you interact with them using Python syntax.
+- **Memory Sharing:** Data is stored in C++ arrays, but can be accessed and manipulated from Python without unnecessary copying.
+
+
+**Note:**
+- ASC-bla uses `A * B` for matrix multiplication, while NumPy e.g uses `A @ B` (or 
+
+This design makes it easy for users familiar with NumPy to adopt ASC-bla for high-performance C++-backed computations in Python.
 
 ---
 

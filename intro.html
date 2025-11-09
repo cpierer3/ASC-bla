@@ -346,7 +346,13 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-features">Advanced Features</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expression-templates-for-efficient-operations">Expression Templates for Efficient Operations</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#matrix-views-submatrices-rows-columns-and-transpose">Matrix Views: Submatrices, Rows, Columns, and Transpose</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fundamental-matrix-operations-such-as-inversion">Fundamental Matrix operations such as inversion</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#further-matrix-operations-such-as-inversion">Further Matrix operations such as inversion</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-bindings-and-usage">Python Bindings and Usage</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-for-python">Installation for Python</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-asc-bla-from-python">Using ASC-bla from Python</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-python-binding-works">How the Python Binding Works</a></li>
 </ul>
 </li>
 </ul>
@@ -367,7 +373,7 @@ The library provides template classes <strong>Vector</strong> and <strong>Matrix
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
 <p>install it via git-clone:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/TUWien-ASC/ASC-bla.git
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/cpierer3/ASC-bla.git
 </pre></div>
 </div>
 <p>To configure and build some tests do</p>
@@ -459,8 +465,8 @@ default is row-major.</p>
 </pre></div>
 </div>
 </section>
-<section id="fundamental-matrix-operations-such-as-inversion">
-<h3>Fundamental Matrix operations such as inversion<a class="headerlink" href="#fundamental-matrix-operations-such-as-inversion" title="Link to this heading">#</a></h3>
+<section id="further-matrix-operations-such-as-inversion">
+<h3>Further Matrix operations such as inversion<a class="headerlink" href="#further-matrix-operations-such-as-inversion" title="Link to this heading">#</a></h3>
 <p>You can compute the inverse of a square matrix using:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">A</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">);</span>
 <span class="c1">// ... initialize A ...</span>
@@ -468,14 +474,77 @@ default is row-major.</p>
 </pre></div>
 </div>
 <p>This uses Gauss-Jordan elimination with partial pivoting.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
----
-
-For more details, see the source files `matrixexpr.hpp` and `matrixview.hpp`.
-
-
+</section>
+</section>
+<hr class="docutils" />
+<section id="python-bindings-and-usage">
+<h2>Python Bindings and Usage<a class="headerlink" href="#python-bindings-and-usage" title="Link to this heading">#</a></h2>
+<p>ASC-bla provides Python bindings, allowing you to use its high-performance C++ linear algebra routines directly from Python. This is achieved via a shared library (e.g., <code class="docutils literal notranslate"><span class="pre">bla.cpython-XY-darwin.so</span></code>) built with tools like <code class="docutils literal notranslate"><span class="pre">pybind11</span></code> and CMake.</p>
+<section id="installation-for-python">
+<h3>Installation for Python<a class="headerlink" href="#installation-for-python" title="Link to this heading">#</a></h3>
+<p>To install the ASC-bla C++ library for Python, follow these steps:</p>
+<ol class="arabic">
+<li><p><strong>Build the C++ library and Python bindings:</strong></p>
+<p>From the project root, run:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>build
+<span class="nb">cd</span><span class="w"> </span>build
+cmake<span class="w"> </span>..
+make
+make<span class="w"> </span>install<span class="w"> </span>
 </pre></div>
 </div>
+<p>This will build the shared object for Python (e.g., <code class="docutils literal notranslate"><span class="pre">bla.cpython-XY-darwin.so</span></code>).</p>
+</li>
+<li><p><strong>Install as a Python package:</strong></p>
+<p>You can install with pip:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+<p>This will make the ASC-bla Python module available in your environment.</p>
+</li>
+</ol>
+</section>
+<section id="using-asc-bla-from-python">
+<h3>Using ASC-bla from Python<a class="headerlink" href="#using-asc-bla-from-python" title="Link to this heading">#</a></h3>
+<p>Once installed, you can import and use the library in Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">ASCsoft.bla</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bla</span>
+
+<span class="c1"># Create a vector and perform operations</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">bla</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">bla</span><span class="o">.</span><span class="n">Vector</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+
+<span class="n">y</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">5.0</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">y</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;z =&quot;</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+<span class="c1"># Create and use matrices</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">bla</span><span class="o">.</span><span class="n">Matrix</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">bla</span><span class="o">.</span><span class="n">Matrix</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">A</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">B</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">2.0</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">A</span> <span class="o">+</span> <span class="n">B</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The Python API closely mirrors the C++ API, making it easy to switch between languages. All heavy computations are performed in C++ for maximum performance.</p>
+</section>
+<section id="how-the-python-binding-works">
+<h3>How the Python Binding Works<a class="headerlink" href="#how-the-python-binding-works" title="Link to this heading">#</a></h3>
+<p>The Python bindings for ASC-bla are created using <a class="reference external" href="https://pybind11.readthedocs.io/">pybind11</a>, a modern C++ library that exposes C++ classes and functions to Python. When you build the project, a shared library (e.g., <code class="docutils literal notranslate"><span class="pre">bla.cpython-XY-darwin.so</span></code>) is generated and can be imported as a Python module. This module provides direct access to the C++ <code class="docutils literal notranslate"><span class="pre">Vector</span></code> and <code class="docutils literal notranslate"><span class="pre">Matrix</span></code> classes, with methods and operators mapped to Python equivalents.</p>
+<ul class="simple">
+<li><p><strong>Direct Mapping:</strong> The C++ classes and methods are exposed almost 1:1 in Python, so you can use the same method names and operators.</p></li>
+<li><p><strong>Performance:</strong> All core computations (arithmetic, slicing, etc.) are performed in C++ for speed, but you interact with them using Python syntax.</p></li>
+<li><p><strong>Memory Sharing:</strong> Data is stored in C++ arrays, but can be accessed and manipulated from Python without unnecessary copying.</p></li>
+</ul>
+<p><strong>Note:</strong></p>
+<ul class="simple">
+<li><p>ASC-bla uses <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">*</span> <span class="pre">B</span></code> for matrix multiplication, while NumPy e.g uses <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">&#64;</span> <span class="pre">B</span></code> (or</p></li>
+</ul>
+<p>This design makes it easy for users familiar with NumPy to adopt ASC-bla for high-performance C++-backed computations in Python.</p>
+<hr class="docutils" />
+<p>For more details, see the source files <code class="docutils literal notranslate"><span class="pre">matrixexpr.hpp</span></code> and <code class="docutils literal notranslate"><span class="pre">matrixview.hpp</span></code>.</p>
 </section>
 </section>
 </section>
@@ -531,7 +600,13 @@ For more details, see the source files `matrixexpr.hpp` and `matrixview.hpp`.
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-features">Advanced Features</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expression-templates-for-efficient-operations">Expression Templates for Efficient Operations</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#matrix-views-submatrices-rows-columns-and-transpose">Matrix Views: Submatrices, Rows, Columns, and Transpose</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fundamental-matrix-operations-such-as-inversion">Fundamental Matrix operations such as inversion</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#further-matrix-operations-such-as-inversion">Further Matrix operations such as inversion</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-bindings-and-usage">Python Bindings and Usage</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-for-python">Installation for Python</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-asc-bla-from-python">Using ASC-bla from Python</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-python-binding-works">How the Python Binding Works</a></li>
 </ul>
 </li>
 </ul>
