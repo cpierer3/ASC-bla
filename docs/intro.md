@@ -191,18 +191,9 @@ The Python API closely mirrors the C++ API, making it easy to switch between lan
 
 The Python bindings for ASC-bla are created using [pybind11](https://pybind11.readthedocs.io/), a modern C++ library that exposes C++ classes and functions to Python. When you build the project, a shared library (e.g., `bla.cpython-XY-darwin.so`) is generated and can be imported as a Python module. This module provides direct access to the C++ `Vector` and `Matrix` classes, with methods and operators mapped to Python equivalents.
 
-- **Direct Mapping:** The C++ classes and methods are exposed almost 1:1 in Python, so you can use the same method names and operators.
-- **Performance:** All core computations (arithmetic, slicing, etc.) are performed in C++ for speed, but you interact with them using Python syntax.
-- **Memory Sharing:** Data is stored in C++ arrays, but can be accessed and manipulated from Python without unnecessary copying.
-
-
-**Note:**
-- ASC-bla uses `A * B` for matrix multiplication, while NumPy e.g uses `A @ B` (or 
-
-This design makes it easy for users familiar with NumPy to adopt ASC-bla for high-performance C++-backed computations in Python.
-
----
-
-For more details, see the source files `matrixexpr.hpp` and `matrixview.hpp`.
+- The C++ classes and methods are exposed almost 1:1 in Python, so you can use the same method names and operators.
+- All core computations (arithmetic, slicing, etc.) are performed in C++ for speed, but you interact with them using Python syntax.
+-  Data is stored in C++ arrays, but can be accessed and manipulated from Python without unnecessary copying.
+- `A.to_numpy()` returns a NumPy array view of the matrix data (no copy).
 
 

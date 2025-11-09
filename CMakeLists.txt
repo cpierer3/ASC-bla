@@ -33,14 +33,15 @@ endif()
 
 
 find_package(LAPACK REQUIRED)
-add_executable (test_lapack demos/test_lapack.cpp)
-target_link_libraries (test_lapack PUBLIC LAPACK::LAPACK)
+#add_executable (test_lapack demos/test_lapack.cpp)
+#target_link_libraries (test_lapack PUBLIC LAPACK::LAPACK)
 
 
 pybind11_add_module(bla src/bind_bla.cpp)
 
 install (TARGETS bla DESTINATION ASCsoft)
 install (FILES src/vector.hpp DESTINATION ASCsoft/include)
+install (FILES src/matrixview.hpp DESTINATION ASCsoft/include)
 
 
 # Copy openblas dll file to build directory (no need to set PATH)
@@ -51,4 +52,3 @@ if(WIN32)
       $<TARGET_FILE_DIR:test_lapack>
     )
 endif()
-

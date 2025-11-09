@@ -4,6 +4,8 @@
 #include <matrixview.hpp>
 
 #include "vector.hpp"
+#include "matrixview.hpp"
+#include <pybind11/numpy.h>
 
 using namespace ASC_bla;
 namespace py = pybind11;
@@ -59,14 +61,14 @@ PYBIND11_MODULE(bla, m) {
             if (t.size() != 2)
               throw std::runtime_error("should be a 2-tuple!");
 
-            Vector<double> v(t[0].cast<size_t>());
-            py::bytes mem = t[1].cast<py::bytes>();
-            std::memcpy(&v(0), PYBIND11_BYTES_AS_STRING(mem.ptr()),
-                        v.size() * sizeof(double));
-            return v;
-          }));
+          Vector<double> v(t[0].cast<size_t>());
+          py::bytes mem = t[1].cast<py::bytes>();
+          std::memcpy(&v(0), PYBIND11_BYTES_AS_STRING(mem.ptr()), v.size()*sizeof(double));
+          return v;
+        }))
+    ;
 
-  py::class_<Matrix<double, ASC_bla::RowMajor>>(m, "Matrix")
+     py::class_<Matrix<double, ASC_bla::RowMajor>>(m, "Matrix")
       .def(py::init<size_t, size_t>(), py::arg("rows"), py::arg("cols"),
            "Construct a Matrix with specified dimensions\n\n"
            "Args:\n"
@@ -89,5 +91,28 @@ PYBIND11_MODULE(bla, m) {
         return str.str();
       })
       .def("__mul__", [](const Matrix<double, ASC_bla::RowMajor> &self,
-                          const Matrix<double, ASC_bla::RowMajor> &other) { return Matrix<double, ASC_bla::RowMajor>(self* other); });
+                          const Matrix<double, ASC_bla::RowMajor> &other) { return Matrix<double, ASC_bla::RowMajor>(self* other); })
+
+      .def("row", [](Matrix<double, RowMajor> &self, int i) {
+      return self.row(i);
+      }, py::return_value_policy::reference_internal)
+
+      .def("col", [](Matrix<double, RowMajor> &self, int j) {
+      return self.col(j);
+      }, py::return_value_policy::reference_internal)
+      
+      .def("transpose", [](const Matrix<double, RowMajor> &self) {
+      return self.transpose();
+      })
+      .def("inverse", [](const Matrix<double, RowMajor> &self) {
+      return self.inverse();
+      })
+      .def("to_numpy", [](Matrix<double, RowMajor> &self) {
+      return py::array_t<double>(
+        {self.rows(), self.cols()},
+        {sizeof(double) * self.cols(), sizeof(double)},
+        &self(0,0)
+    );
+})
+      ;
 }
