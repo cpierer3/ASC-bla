@@ -2,7 +2,7 @@
 A simple basic linear algebra implementation using modern C++.
 
 
-Read the [Documentation](https://github.com/cpierer3/ASC-bla.git/intro.html)
+Read the [Documentation](https://cpierer3.github.io/ASC-bla/intro.html)
 
 
 telling the truth: ASC-bla is not really a complete library,
