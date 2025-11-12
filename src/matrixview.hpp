@@ -5,6 +5,8 @@
 #include <iostream>
 #include <matrixexpr.hpp>
 #include <vector.hpp>
+#include "../myASC-HPC/src/simd.hpp"
+
 
 namespace ASC_bla {
   enum ORDERING { ColMajor, RowMajor };
@@ -76,8 +78,17 @@ namespace ASC_bla {
     MatrixView &operator=(const MatrixView<T, ORD> &m2) {
       assert(m_rows == m2.rows());
       assert(m_cols == m2.cols());
-      for (int i = 0; i < rows(); i++) {
-        for (int j = 0; j < cols(); j++) {
+      for (int i = 0; i < rows()/2; i+=2) {
+        for (int j = 0; j < cols()/2; j+=2) {
+          (*this)(i, j) = m2(i, j);
+          (*this)(i, j+1) = m2(i, j+1);
+          (*this)(i+1, j) = m2(i+1, j);
+          (*this)(i+1, j+1) = m2(i+1, j+1);
+        }
+      }
+      // residual indices 
+      for (int i = (cols()/2)*2; i < rows(); i++) {
+        for (int j = (cols()/2)*2; j < cols(); j++) {
           (*this)(i, j) = m2(i, j);
         }
       }
@@ -88,11 +99,22 @@ namespace ASC_bla {
     MatrixView &operator=(const MatrixExpr<TB> &m2) {
       assert(m_rows == m2.rows());
       assert(m_cols == m2.cols());
-      for (int i = 0; i < rows(); i++) {
-        for (int j = 0; j < cols(); j++) {
+      for (int i = 0; i < rows()/2; i+=2) {
+        for (int j = 0; j < cols()/2; j+=2) {
+          (*this)(i, j) = m2(i, j);
+          (*this)(i, j+1) = m2(i, j+1);
+          (*this)(i+1, j) = m2(i+1, j);
+          (*this)(i+1, j+1) = m2(i+1, j+1);
+        }
+      }
+      // residual indices 
+      for (int i = (cols()/2)*2; i < rows(); i++) {
+        for (int j = (cols()/2)*2; j < cols(); j++) {
           (*this)(i, j) = m2(i, j);
         }
       }
+
+
       return *this;
     }
 

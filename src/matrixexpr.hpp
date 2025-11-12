@@ -67,7 +67,7 @@ namespace ASC_bla {
     TB b;
   public:
     MatMultMatrixExpr(TA _a, TB _b) : a(_a), b(_b) { }
-
+    
     auto operator()(size_t i, size_t j) const {
       using elemtypeA = typename std::invoke_result<TA, size_t, size_t>::type;
       using elemtypeB = typename std::invoke_result<TB, size_t, size_t>::type;
