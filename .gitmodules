@@ -1,0 +1,3 @@
+[submodule "myASC-HPC"]
+	path = myASC-HPC
+	url = https://github.com/cpierer3/myASC-HPC.git
