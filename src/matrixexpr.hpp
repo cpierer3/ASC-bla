@@ -3,7 +3,6 @@
 
 #include <cassert>
 #include "../myASC-HPC/src/simd.hpp"
-#include <vecexpr.hpp>
 
 namespace ASC_bla {
 
@@ -70,7 +69,24 @@ namespace ASC_bla {
     MatMultMatrixExpr(TA _a, TB _b) : a(_a), b(_b) { }
 
     auto operator()(size_t i, size_t j) const {
-      return dot(a.row(i), b.col(j));
+      using elemtypeA = typename std::invoke_result<TA, size_t, size_t>::type;
+      using elemtypeB = typename std::invoke_result<TB, size_t, size_t>::type;
+      using TSUM = decltype(std::declval<elemtypeA>() * std::declval<elemtypeB>());
+      ASC_HPC::SIMD<TSUM, 4> acc = ASC_HPC::SIMD<TSUM, 4>(0.0);
+      for (int k = 0; k + 4 < a.cols(); k += 4) {
+        const ASC_HPC::SIMD<TSUM, 4> v0 = ASC_HPC::SIMD<TSUM, 4>(
+            a.row(i)(k+0), a.row(i)(k+1), a.row(i)(k+2), a.row(i)(k+3)
+        );
+        const ASC_HPC::SIMD<TSUM, 4> v1 = ASC_HPC::SIMD<TSUM, 4>(
+            b.col(j)(k+0), b.col(j)(k+1), b.col(j)(k+2), b.col(j)(k+3)
+        );
+        acc += (v0 * v1);
+      }
+      TSUM restAcc = 0.0;
+      for (int k = (a.cols() / 4) * 4; k < a.cols(); k++) {
+        restAcc += a.row(i)(k) * b.col(j)(k);
+      }
+      return ASC_HPC::hSum(acc) + restAcc;
     }
 
     size_t rows() const { return a.rows(); }
