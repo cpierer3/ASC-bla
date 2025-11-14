@@ -10,8 +10,8 @@ namespace ASC_bla {
     Matrix<T, ORDERING::RowMajor> C(A.rows(), B.cols());
 
 
-    constexpr int COLS = 16;
-    constexpr int ROWS = 10;
+    constexpr int COLS = 8;
+    constexpr int ROWS = 1;
     for (size_t i = 0; i < A.rows() / ROWS; i += ROWS) {
       for (size_t j = 0; j < B.cols() / COLS; j += COLS) {
 
