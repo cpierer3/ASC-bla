@@ -9,28 +9,29 @@ namespace ASC_bla {
   Matrix<T, ORDERING::RowMajor> Multi(const MatrixView<T, ORDERING::RowMajor> A, const MatrixView<T, ORDERING::RowMajor> B) {
     Matrix<T, ORDERING::RowMajor> C(A.rows(), B.cols());
 
+
+    constexpr int STRIDE = 8;
     for (size_t i = 0; i < A.rows() / 2; i += 2) {
       auto r1 = A.row(i);
       auto r2 = A.row(i + 1);
-      for (size_t j = 0; j < B.cols() / 2; j += 2) {
-        auto c1 = B.col(j);
-        auto c2 = B.col(j+1);
+      for (size_t j = 0; j < B.cols() / STRIDE; j += STRIDE) {
 
-        auto a00 = 0.0, a01=0.0, a10=0.0, a11 = 0.0;
+        ASC_HPC::SIMD<double, STRIDE> a0 = ASC_HPC::SIMD<double, STRIDE>(0.0);
+        ASC_HPC::SIMD<double, STRIDE> a1 = ASC_HPC::SIMD<double, STRIDE>(0.0);
+
         for (size_t k=0; k<A.cols(); k++) {
-          a00 += r1(k) * c1(k);
-          a01 += r1(k) * c2(k);
-          a10 += r2(k) * c1(k);
-          a11 += r2(k) * c2(k);
+          auto c = ASC_HPC::SIMD<double, STRIDE>(B.data()[k*B.dist()+j]);
+          a0 += r1(k) * c;
+          a1 += r2(k) * c;
         }
 
-        C(i, j) = a00;
-        C(i, j + 1) = a01;
-        C(i + 1, j) = a10;
-        C(i + 1, j + 1) = a11;
+        a0.store(&C.data()[i*C.dist()+j]);
+        a1.store(&C.data()[(i+1)*C.dist()+j]);
       }
     }
+    return C;
   }
+
 }
 
 #endif
