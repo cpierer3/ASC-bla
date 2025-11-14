@@ -10,7 +10,7 @@ namespace ASC_bla {
     Matrix<T, ORDERING::RowMajor> C(A.rows(), B.cols());
 
 
-    constexpr int STRIDE = 8;
+    constexpr int STRIDE = 16;
     for (size_t i = 0; i < A.rows() / 2; i += 2) {
       auto r1 = A.row(i);
       auto r2 = A.row(i + 1);
