@@ -24,12 +24,12 @@ void test_row_major_and_col_major() {
 
   std::cout << "A: ";
   for (size_t i =0; i<3*3; i++) {
-    std::cout << A.getRawDataDanger()[i] << ", ";
+    std::cout << A.data()[i] << ", ";
   }
   std::cout << std::endl;
   std::cout << "B: ";
   for (size_t i =0; i<3*2; i++) {
-    std::cout << B.getRawDataDanger()[i] << ", ";
+    std::cout << B.data()[i] << ", ";
   }
   std::cout << std::endl;
 

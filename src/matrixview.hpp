@@ -99,29 +99,18 @@ namespace ASC_bla {
     MatrixView &operator=(const MatrixExpr<TB> &m2) {
       assert(m_rows == m2.rows());
       assert(m_cols == m2.cols());
-      for (int i = 0; i < rows()/2; i+=2) {
-        for (int j = 0; j < cols()/2; j+=2) {
-          (*this)(i, j) = m2(i, j);
-          (*this)(i, j+1) = m2(i, j+1);
-          (*this)(i+1, j) = m2(i+1, j);
-          (*this)(i+1, j+1) = m2(i+1, j+1);
-        }
-      }
-      // residual indices 
-      for (int i = (cols()/2)*2; i < rows(); i++) {
-        for (int j = (cols()/2)*2; j < cols(); j++) {
+      for (int i = 0; i < rows(); i++) {
+        for (int j = 0; j < cols(); j++) {
           (*this)(i, j) = m2(i, j);
         }
       }
-
-
       return *this;
     }
 
     MatrixView &operator=(T scal) {
       for (int i = 0; i < rows(); i++) {
         for (int j = 0; j < cols(); j++) {
-          *this(i, j) = scal;
+          (*this)(i, j) = scal;
         }
       }
       return *this;
@@ -217,10 +206,6 @@ namespace ASC_bla {
         delete[] this->m_data;
         m_data = nullptr;
       }
-    }
-
-    T *getRawDataDanger() {
-      return m_data;
     }
 
     Matrix<T, ORD> inverse() const {

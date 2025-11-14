@@ -15,6 +15,7 @@
 // We'll use the "Matrix.h" stub provided below for a complete, runnable example.
 #include <matrixview.hpp>
 #include <mat_simd.hpp>
+#include <lapack_interface.hpp>
 
 
 int main() {
@@ -35,7 +36,8 @@ int main() {
   // ...
   // n = 1024 -> (loop) -> n = 2048 (benchmark)
   // This 'for' loop is the direct C++ equivalent.
-  for (int n = 2; n <= 2048; n *= 2) {
+  for (int n = 16; n <= 2048; n *= 2) {
+//  for (int n = 8; n <= 8; n *= 2) {
 
     ASC_bla::Matrix<double, ASC_bla::RowMajor> A(n, n);
     ASC_bla::Matrix<double, ASC_bla::RowMajor> B(n, n);
@@ -43,8 +45,8 @@ int main() {
     // Initialize matrices with random values
     for (int i = 0; i < A.rows(); ++i) {
       for (int j = 0; j < A.cols(); ++j) {
-        A(i, j) = static_cast<double>(rand()) / RAND_MAX;
-        B(i, j) = static_cast<double>(rand()) / RAND_MAX;
+        A(i, j) = static_cast<double>(i+j+2.2);
+        B(i, j) = static_cast<double>(i+j+1.1);
       }
     }
 
@@ -66,6 +68,20 @@ int main() {
 
     // Stop the timer
     auto te = std::chrono::high_resolution_clock::now();
+
+    ASC_bla::Matrix<double, ASC_bla::RowMajor> D(n, n);
+//    D = A * B; // Using overloaded operator*
+    ASC_bla::multMatMatLapack(A, B, D);
+    // Verify that C and D are approximately equal
+    double max_diff = 0.1;
+    for (int i = 0; i < n; ++i) {
+      for (int j = 0; j < n; ++j) {
+        double diff = std::abs(C(i, j) - D(i, j));
+        if (diff > max_diff) {
+          std::cerr << "Difference at (" << i << ", " << j << "): C = " << C(i, j) << ", D = " << D(i, j) << std::endl;
+        }
+      }
+    }
 
     // Calculate the total elapsed time in seconds
     std::chrono::duration<double> elapsed_seconds = te - ts;

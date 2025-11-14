@@ -1,6 +1,8 @@
 build
 _build
 .vscode
+.idea
+.cache
 
 # from python package
 _skbuild

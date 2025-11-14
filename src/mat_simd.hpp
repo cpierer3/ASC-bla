@@ -11,23 +11,23 @@ namespace ASC_bla {
 
 
     constexpr int COLS = 8;
-    constexpr int ROWS = 1;
-    for (size_t i = 0; i < A.rows() / ROWS; i += ROWS) {
-      for (size_t j = 0; j < B.cols() / COLS; j += COLS) {
+    constexpr int ROWS = 4;
+    for (size_t i = 0; i < A.rows(); i += ROWS) {
+      for (size_t j = 0; j < B.cols(); j += COLS) {
 
-        ASC_HPC::SIMD<double, COLS> a0[ROWS];
+        ASC_HPC::SIMD<double, COLS> a[ROWS];
         for (int t=0; t<ROWS; t++) {
-          a0[t] = ASC_HPC::SIMD<double, COLS>(0.0);
+          a[t] = ASC_HPC::SIMD<double, COLS>(0.0);
         }
         for (size_t k=0; k<A.cols(); k++) {
-          auto c = ASC_HPC::SIMD<double, COLS>(B.data()[k * B.dist() + j]);
+          auto c = ASC_HPC::SIMD<double, COLS>(&B.data()[k * B.dist() + j]);
           for (int t=0; t<ROWS; t++) {
-            a0[t] += A(i+t, k) * c;
+            a[t] += A(i + t, k) * c;
           }
         }
 
         for (int t=0; t<ROWS; t++) {
-          a0[t].store(&C.data()[(i+t)*C.dist()+j]);
+          a[t].store(&C.data()[(i + t) * C.dist() + j]);
         }
       }
     }
