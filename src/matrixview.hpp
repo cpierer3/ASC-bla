@@ -131,6 +131,11 @@ namespace ASC_bla {
 
     size_t cols() const { return m_cols; }
 
+    size_t dist() const { return m_dist;}
+
+    T *data() const { return m_data; }
+
+
     T &operator()(size_t i, size_t j) {
       if constexpr (ORD == RowMajor) {
         return m_data[i * m_dist + j];
