@@ -10,23 +10,25 @@ namespace ASC_bla {
     Matrix<T, ORDERING::RowMajor> C(A.rows(), B.cols());
 
 
-    constexpr int STRIDE = 16;
-    for (size_t i = 0; i < A.rows() / 2; i += 2) {
-      auto r1 = A.row(i);
-      auto r2 = A.row(i + 1);
-      for (size_t j = 0; j < B.cols() / STRIDE; j += STRIDE) {
+    constexpr int COLS = 16;
+    constexpr int ROWS = 10;
+    for (size_t i = 0; i < A.rows() / ROWS; i += ROWS) {
+      for (size_t j = 0; j < B.cols() / COLS; j += COLS) {
 
-        ASC_HPC::SIMD<double, STRIDE> a0 = ASC_HPC::SIMD<double, STRIDE>(0.0);
-        ASC_HPC::SIMD<double, STRIDE> a1 = ASC_HPC::SIMD<double, STRIDE>(0.0);
-
+        ASC_HPC::SIMD<double, COLS> a0[ROWS];
+        for (int t=0; t<ROWS; t++) {
+          a0[t] = ASC_HPC::SIMD<double, COLS>(0.0);
+        }
         for (size_t k=0; k<A.cols(); k++) {
-          auto c = ASC_HPC::SIMD<double, STRIDE>(B.data()[k*B.dist()+j]);
-          a0 += r1(k) * c;
-          a1 += r2(k) * c;
+          auto c = ASC_HPC::SIMD<double, COLS>(B.data()[k * B.dist() + j]);
+          for (int t=0; t<ROWS; t++) {
+            a0[t] += A(i+t, k) * c;
+          }
         }
 
-        a0.store(&C.data()[i*C.dist()+j]);
-        a1.store(&C.data()[(i+1)*C.dist()+j]);
+        for (int t=0; t<ROWS; t++) {
+          a0[t].store(&C.data()[(i+t)*C.dist()+j]);
+        }
       }
     }
     return C;
