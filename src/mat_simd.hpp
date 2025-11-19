@@ -34,6 +34,24 @@ namespace ASC_bla {
     return C;
   }
 
+  template<typename T>
+  // naive testing for time difference
+  Matrix <T, ORDERING::RowMajor> Multi(const MatrixView<T, ORDERING::ColMajor> A, const MatrixView<T, ORDERING::RowMajor> B) {
+    //std::cout << "Using transpose multiplication!" << std::endl;
+    return Multi(A.transpose(), B);
 }
 
+template<typename T>
+  Matrix <T, ORDERING::RowMajor> Multi(const MatrixView<T, ORDERING::RowMajor> A, const MatrixView<T, ORDERING::ColMajor> B) {
+    //std::cout << "Using transpose multiplication!" << std::endl;
+    return Multi(A, B.transpose());
+}
+
+template<typename T>
+  Matrix <T, ORDERING::RowMajor> Multi(const MatrixView<T, ORDERING::ColMajor> A, const MatrixView<T, ORDERING::ColMajor> B) {
+    //std::cout << "Using transpose multiplication!" << std::endl;
+    return Multi(A.transpose(), B.transpose());
+
+}
+}
 #endif
